@@ -14,6 +14,7 @@
 for ((i=0;i<20;i++))
 do
     MaxCustomers=$(( (RANDOM % 40) + 10))
+    
     numChairs=$(( (RANDOM % 7) + 3))
     echo "Test Case $i : MaxCustomers = $MaxCustomers, numChairs = $numChairs" >> Lab3.test.results.txt
     ./Lab3 $MaxCustomers $numChairs >> Lab3.test.results.txt

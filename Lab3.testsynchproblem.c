@@ -23,7 +23,13 @@
 #include <standards.h>
 #include <os.h>
 
+void shop(int maxCustomers, int chairs);
+
 extern bool closeShop;
+
+extern int maxCustomers;
+extern int chairs;
+
 /*
     main function:
         - reads from command line arguments
@@ -37,10 +43,12 @@ extern bool closeShop;
 */
 
 int main(int argc, char *argv[]){
-    int maxCustomers;
-    int chairs;
     char input;
     int i;
+
+    input = ' ';
+    i = 0;
+    closeShop = false;
     
     if(argc != 3){
         maxCustomers = 25;

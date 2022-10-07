@@ -9,18 +9,14 @@
 
 # the output of the executable is redirected file "Lab3.test.results.txt"
 
-# the output of the executable is redirected file "Lab3.test.results.txt"
-
 for ((i=0;i<20;i++))
 do
     MaxCustomers=$(( (RANDOM % 40) + 10))
     numChairs=$(( (RANDOM % 7) + 3))
-    echo "Test Case $i : MaxCustomers = $MaxCustomers, numChairs = $numChairs" >> Lab3.test.results.txt
+    echo -e "Test Case $i : MaxCustomers = $MaxCustomers, numChairs = $numChairs" >> Lab3.test.results.txt
     ./Lab3 $MaxCustomers $numChairs >> Lab3.test.results.txt
     # append 3 new lines between each test case
-    echo >> Lab3.test.results.txt
-    echo >> Lab3.test.results.txt
-    echo >> Lab3.test.results.txt    
+    echo -e "\n\n\n" >> Lab3.test.results.txt   
 done
 
 

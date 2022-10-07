@@ -25,7 +25,6 @@ Variable Declaration:
     semCustomer:    <semaphore> used to signal the customer
     semBarberDone:  <semaphore> used to signal the barber is done
     semCustomerDone:<semaphore> used to signal the customer is done
-    closureTime:    <int> the time the barber shop will be open
 
 Customer:
     If there are n=maxCustomers customers in the shop, and if another customer arrives,
@@ -55,7 +54,7 @@ Barber:
     wait till customer is done using P(semCustomerDone).
     Mark the barber as available using V(semBarberDone).
 
-    Keep running this server until the closureTime is reached.
+    Keep running this server until user press q to quit
 
 
 Main:

@@ -21,13 +21,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
-#include <unistd.h>
-#include <time.h>
-
 #include <standards.h>
 #include <os.h>
 #include <kernelConfig.h>
-
 /*
     contains the following functions:
     Semaphore   newSem(int initialValue);
@@ -39,6 +35,10 @@
 /*
     Declare global variables
 */
+int maxCustomers;
+int chairs;
+int customersWaiting;
+
 /*semaphores*/
 int mutex;
 int barberSem;
@@ -48,7 +48,7 @@ int customerDoneSem;
 bool closeShop;
 
 
-void walkIn();
+void main_thread();
 void balk();
 void cutHair();
 void getHairCut();
@@ -57,27 +57,28 @@ void barber();
 
 void shop();
 
-void shop(int maxCustomers, int chairs){
-    mutex = newSem(1);
-    barberSem = newSem(0);
-    customerSem = newSem(0);
-    barberDoneSem = newSem(0);
-    customerDoneSem = newSem(0);
+void shop(){
+    mutex = NewSem(1);
+    barberSem = NewSem(0);
+    customerSem = NewSem(0);
+    barberDoneSem = NewSem(0);
+    customerDoneSem =NewSem(0);
 
     printf("Shop is open for business, with %d chairs, and %d customers will come in today.\n", chairs, maxCustomers);
-    Create(walkIn, 16000, "createCustomer", NULL, NORM, USR);
+    Create(main_thread, 16000, "createCustomer", NULL, NORM, USR);
 }
 
-void walkIn(){
+void main_thread(){
     int i;
     PID barberID = Create(barber, 16000, "barber", NULL, HIGH, USR);
+    customersWaiting = 0;
     for(i = 0; i < maxCustomers; i++){
         Create(customer, 16000, "customer", NULL, NORM, USR);
-        sleep(10);
+        Sleep(10);
     }
     /* wait for shop to close by check closeShop boolean in a loop*/
     while(!closeShop){
-        sleep(1);
+        Sleep(1);
     }
 
     /* kill barber */
@@ -85,21 +86,21 @@ void walkIn(){
 }
 
 void balk(){
-    printf("Customer %d balks... \n", GetPid());
+    printf("one Customer balks... \n");
     printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
 }
 
 void cutHair(){
-    printf("Barber %d is cutting hair... \n", GetPid());
-    sleep(20);
-    printf("Barber %d is done cutting hair... \n", GetPid());
+    printf("Barber is cutting hair... \n");
+    Sleep(20);
+    printf("Barber is done cutting hair... \n");
     printf("%d customers are waiting.\n", customersWaiting);
 }
 
 void getHairCut(){
-    printf("Customer %d is getting a haircut... \n", GetPid());
-    sleep(30);
-    printf("Customer %d is done getting a haircut... \n", GetPid());
+    printf("Customer is getting a haircut... \n");
+    Sleep(30);
+    printf("Customer is done getting a haircut... \n");
     printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
 }
 
@@ -111,7 +112,7 @@ void customer(){
         */
         customersWaiting++;
         V(mutex);
-        printf("Customer %d walks in... \n", GetPid());
+        printf("Customer walks in... \n");
         printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
         V(customerSem);
 
@@ -129,7 +130,7 @@ void customer(){
         P(mutex);
         customersWaiting--;
         V(mutex);
-        printf("Customer %d leaves... \n", GetPid());
+        printf("Customer leaves... \n");
         printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
 
     } else {

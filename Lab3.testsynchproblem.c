@@ -42,15 +42,11 @@ extern int chairs;
         - close the shop by setting closeShop to true
 */
 
-int main(int argc, char *argv[]){
-    char input;
-    int i;
-
-    input = ' ';
-    i = 0;
+int mainp(int argc, char *argv[]){
     closeShop = false;
     
     if(argc != 3){
+        printf("No arguments given, using default values for maxCustomers and chairs");
         maxCustomers = 25;
         chairs = 5;
     }else{
@@ -59,15 +55,6 @@ int main(int argc, char *argv[]){
     }
     shop(maxCustomers, chairs);
 
-    printf("Press 'q' to close the shop");
-    while(input != 'q'){
-        input = getchar();
-        i++;
-        if(i > 20000000){
-            closeShop = true;
-            break;
-        }
-    }
     return 0;
 }
 

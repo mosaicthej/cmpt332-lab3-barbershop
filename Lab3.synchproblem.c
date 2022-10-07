@@ -73,7 +73,7 @@ void main_thread(){
     PID barberID = Create(barber, 16000, "barber", NULL, HIGH, USR);
     customersWaiting = 0;
     for(i = 0; i < maxCustomers; i++){
-        Create(customer, 16000, "customer", NULL, NORM, USR);
+        Create(customer, 16000, "customer", &i, NORM, USR);
         Sleep(10);
     }
     /* wait for shop to close by check closeShop boolean in a loop*/
@@ -85,26 +85,27 @@ void main_thread(){
     Kill(barberID);
 }
 
-void balk(){
-    printf("one Customer balks... \n");
+void balk(int threadIndex){
+    printf("Customer %03d balks... \n", threadIndex);
     printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
 }
 
 void cutHair(){
-    printf("Barber is cutting hair... \n");
+    printf("Barber is cutting hair for customer... \n");
     Sleep(20);
-    printf("Barber is done cutting hair... \n");
+    printf("Barber is done cutting hair for customer... \n");
     printf("%d customers are waiting.\n", customersWaiting);
 }
 
-void getHairCut(){
-    printf("Customer is getting a haircut... \n");
+void getHairCut(int threadIndex){
+    printf("Customer %03d is getting a haircut... \n", threadIndex);
     Sleep(30);
-    printf("Customer is done getting a haircut... \n");
+    printf("Customer %03d is done haircut... \n", threadIndex);
     printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
 }
 
-void customer(){
+void customer(void* arg){
+    int threadIndex = *((int*)arg);
     P(mutex);
     if(customersWaiting < chairs){
         /*
@@ -112,7 +113,7 @@ void customer(){
         */
         customersWaiting++;
         V(mutex);
-        printf("Customer walks in... \n");
+        printf("Customer %03d walks in... \n", threadIndex);
         printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
         V(customerSem);
 
@@ -120,7 +121,7 @@ void customer(){
         /*
             customer gets haircut
         */
-        getHairCut();
+        getHairCut(threadIndex);
         V(customerDoneSem);
         P(barberDoneSem);
 
@@ -130,12 +131,19 @@ void customer(){
         P(mutex);
         customersWaiting--;
         V(mutex);
-        printf("Customer leaves... \n");
-        printf("%d chairs are available, and %d customers are waiting.\n", chairs, customersWaiting);
+        printf("Customer %03d leaves... \n", threadIndex);
+        printf("%d chairs are available, and %d customers are waiting.\n\n", chairs, customersWaiting);
 
     } else {
         V(mutex);
-        balk();
+        balk(threadIndex);
+    }
+    /*
+        if no customers are left, close shop
+    */
+    if(customersWaiting == 0){
+        printf("Shop is closed for the day.\n");
+        closeShop = true;
     }
 }
 

@@ -1,0 +1,64 @@
+/*
+# NAME: Matthew Munro
+# NSID: mam552
+# STUDENT NUMBER: 11291769
+# NAME: Yi Luan
+# NSID: yil160
+# STUDENT NUMBER: 11253856
+# NAME: Mark Jia
+# NSID: mij623
+# STUDENT NUMBER: 11271998
+# CMPT 332 2022
+# Lab3
+*/
+
+Synch Problem:
+    Barber Shop Problem (many customers, one barber, one waiting room)
+
+
+
+Variable Declaration:
+    maxCustomers:   <int> the maximum number of customers allowed in the shop
+    numCustomers:   <int> the number of customers currently in the shop
+    mutex:          <semaphore> used to ensure mutual exclusion
+    semBarber:      <semaphore> used to signal the barber
+    semCustomer:    <semaphore> used to signal the customer
+    semBarberDone:  <semaphore> used to signal the barber is done
+    semCustomerDone:<semaphore> used to signal the customer is done
+    closureTime:    <int> the time the barber shop will be open
+
+Customer:
+    If there are n=maxCustomers customers in the shop, and if another customer arrives,
+    the customer will leave the shop. Otherwise, the customer will sit in the waiting
+    room. If the barber is sleeping, the customer will wake the barber. The customer
+    will wait until the barber is done cutting their hair. The customer will then
+    leave the shop.
+
+    Use P(mutex) to protect the data from being accessed by multiple threads at once.
+    If numCustomers > maxCustomers, the customer will leave the shop (balk), and V(mutex).
+
+    Otherwise, the customer will sit in the waiting room, <numCustomers++>. V(mutex).
+    Use V(semCustomer) to signal the barber that a customer is waiting.
+    Use P(semBarber) to wait until the barber is not busy.
+    getHairCut()
+    P(semCustomerDone), V(semBarberDone) to signal the barber that the customer is done.
+    P(mutex), <numCustomers-->, V(mutex) to leave the shop.
+
+Barber:
+    If there are no customers in the shop, the barber will sleep. Otherwise, the
+    barber will cut the customer's hair. The barber will then signal the customer
+    that they are done. The barber will then go back to sleep.
+
+    Use P(semCustomer) to wait for a customer to arrive (sleep).
+    Mark the barber as available using V(semBarber).
+    cutHair()
+    wait till customer is done using P(semCustomerDone).
+    Mark the barber as available using V(semBarberDone).
+
+    Keep running this server until the closureTime is reached.
+
+
+Main:
+    The main function will create the barber and customer threads. The main function
+    will then wait until the barber shop closes. The main function will then join
+    the barber and customer threads.
